@@ -1,0 +1,81 @@
+#! /bin/bash
+# globus-gridftp
+# Author: Shu-Ting Liao
+# Init file for the Globus Gridftp server
+#
+# chkconfig: 345 90 10
+# description: This shell script takes care of starting and stopping
+
+# source function library
+. /etc/rc.d/init.d/functions
+###############  Standard Globus configuration  ######################
+
+GLOBUS_SYSCONFIG=${GLOBUS_SYSCONFIG:-/etc/sysconfig/globus}
+if [ -f "$GLOBUS_SYSCONFIG" ]; then
+    . "$GLOBUS_SYSCONFIG"
+fi
+
+GLOBUS_LOCATION=${GLOBUS_LOCATION:-/opt/globus}
+if [ ! -d "$GLOBUS_LOCATION" ]; then
+  echo "GLOBUS_LOCATION not found"
+  exit 1
+fi
+export GLOBUS_LOCATION
+
+if [ -n "$GLOBUS_TCP_PORT_RANGE" ]; then
+  export GLOBUS_TCP_PORT_RANGE
+fi
+
+if [ -n "$GLOBUS_UDP_PORT_RANGE" ]; then
+  export GLOBUS_UDP_PORT_RANGE
+fi
+
+
+
+###############
+
+user=${USER:-root}
+
+RETVAL=0
+prog="globus-gridftp-server"
+
+GLITE_ENVSCRIPT=${GLITE_ENVSCRIPT:-/etc/profile.d/grid-env.sh}
+if [ -f "$GLITE_ENVSCRIPT" ]; then
+    . "$GLITE_ENVSCRIPT"
+fi
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GLOBUS_LOCATION/lib
+
+# does executable
+[ -x $GLOBUS_LOCATION/sbin/$prog ] || exit 0
+
+case $1 in
+ start)
+      echo -n "Starting $prog"   
+      daemon --user $user $GLOBUS_LOCATION/sbin/$prog -p 2811 -S
+      RETVAL=$?
+      echo
+      exit $RETVAL
+ ;;
+ stop)
+      echo -n $"Shutting down $prog: "
+      killproc ${prog}
+      RETVAL=$?
+      echo
+      exit $RETVAL
+ ;;
+ restart)
+      $0 stop
+      $0 start
+ ;;
+ status)
+      status ${prog}
+      RETVAL=$?
+      exit $RETVAL
+ ;;
+ * )
+      echo "Usage: $0 {start|stop|restart|status}"
+    ;;
+esac
+
+exit
