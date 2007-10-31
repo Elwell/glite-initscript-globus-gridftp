@@ -7,8 +7,9 @@ all: configure
 
 install: 
 	@echo installing ...
-	@mkdir -p $(prefix)/etc/init.d/
+	@mkdir -p $(prefix)/etc/init.d/ $(prefix)/etc/logrotate.d/
 	@install -m 0755 src/globus-gridftp $(prefix)/etc/init.d/
+	@install -m 0644 src/logrotate/globus-gridftp $(prefix)/etc/logrotate.d/
 
 clean::
 	rm -f *~ test/*~ etc/*~ doc/*~ src/*~  

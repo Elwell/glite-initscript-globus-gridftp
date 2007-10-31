@@ -1,0 +1,19 @@
+#
+# Log rotation of GridFTP logs
+#
+
+/var/log/globus-gridftp.log {
+    compress
+    daily
+    delaycompress
+    missingok
+    rotate 90
+}
+
+/var/log/gridftp-session.log {
+    compress
+    daily
+    delaycompress
+    missingok
+    rotate 90
+}

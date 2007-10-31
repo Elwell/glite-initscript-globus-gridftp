@@ -2,7 +2,7 @@
 %define _topdir %{topdir} 
 Summary: glite-initscript-globus-gridftp
 Name: glite-initscript-globus-gridftp
-Version: 1.0.0
+Version: 1.0.1
 Vendor: EGEE
 Release: 1 
 License: EGEE
@@ -27,6 +27,7 @@ make install prefix=%{buildroot}%{prefix}
 %files
 %defattr(-,root,root)
 %{prefix}/etc/init.d/globus-gridftp
+%{prefix}/etc/logrotate.d/globus-gridftp
 %doc LICENSE
 
 %clean
