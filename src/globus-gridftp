@@ -34,8 +34,6 @@ fi
 
 ###############
 
-user=${USER:-root}
-
 RETVAL=0
 prog="globus-gridftp-server"
 
@@ -52,7 +50,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GLOBUS_LOCATION/lib
 case $1 in
  start)
       echo -n "Starting $prog"   
-      daemon --user $user $GLOBUS_LOCATION/sbin/$prog -p 2811 -S \
+      daemon $GLOBUS_LOCATION/sbin/$prog -p 2811 -S \
         -d ${GRIDFTP_LOG_LEVELS:-error,warn,info} \
         -l ${GRIDFTP_SESSION_LOG:-/var/log/gridftp-session.log} \
         -Z ${GRIDFTP_TRANSFER_LOG:-/var/log/globus-gridftp.log}

@@ -4,7 +4,7 @@ Summary: glite-initscript-globus-gridftp
 Name: glite-initscript-globus-gridftp
 Version: 1.0.1
 Vendor: EGEE
-Release: 1 
+Release: 2
 License: EGEE
 Group: EGEE
 Source: %{name}.src.tgz
