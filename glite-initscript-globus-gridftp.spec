@@ -2,9 +2,9 @@
 %define _topdir %{topdir} 
 Summary: glite-initscript-globus-gridftp
 Name: glite-initscript-globus-gridftp
-Version: 1.0.1
+Version: 1.0.2
 Vendor: EGEE
-Release: 2
+Release: 1
 License: EGEE
 Group: EGEE
 Source: %{name}.src.tgz

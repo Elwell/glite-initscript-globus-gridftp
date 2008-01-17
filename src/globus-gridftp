@@ -15,6 +15,11 @@ if [ -f "$GLOBUS_SYSCONFIG" ]; then
     . "$GLOBUS_SYSCONFIG"
 fi
 
+GRIDFTP_SYSCONFIG=${GRIDFTP_SYSCONFIG:-/etc/sysconfig/globus-gridftp}
+if [ -f "$GRIDFTP_SYSCONFIG" ]; then
+    . "$GRIDFTP_SYSCONFIG"
+fi
+
 GLOBUS_LOCATION=${GLOBUS_LOCATION:-/opt/globus}
 if [ ! -d "$GLOBUS_LOCATION" ]; then
   echo "GLOBUS_LOCATION not found"
@@ -34,6 +39,8 @@ fi
 
 ###############
 
+umask=${umask:-022}
+
 RETVAL=0
 prog="globus-gridftp-server"
 
@@ -44,16 +51,17 @@ fi
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GLOBUS_LOCATION/lib
 
-# does executable
+# check if executable exists
 [ -x $GLOBUS_LOCATION/sbin/$prog ] || exit 0
 
 case $1 in
  start)
       echo -n "Starting $prog"   
-      daemon $GLOBUS_LOCATION/sbin/$prog -p 2811 -S \
+      daemon sh -c "'umask $umask; \
+        exec $GLOBUS_LOCATION/sbin/$prog -p 2811 -S \
         -d ${GRIDFTP_LOG_LEVELS:-error,warn,info} \
         -l ${GRIDFTP_SESSION_LOG:-/var/log/gridftp-session.log} \
-        -Z ${GRIDFTP_TRANSFER_LOG:-/var/log/globus-gridftp.log}
+        -Z ${GRIDFTP_TRANSFER_LOG:-/var/log/globus-gridftp.log}'"
       RETVAL=$?
       echo
       exit $RETVAL
