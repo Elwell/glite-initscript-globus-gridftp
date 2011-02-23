@@ -1,12 +1,24 @@
-#! /bin/bash
-# globus-gridftp
-# Author: Shu-Ting Liao
-# Init file for the Globus Gridftp server
+#!/bin/sh
 #
+# globus-gridftp Init file for the Globus Gridftp server
+# Original Author: Shu-Ting Liao
+
 # chkconfig: 345 90 10
 # description: This shell script takes care of starting and stopping
 
-# source function library
+### BEGIN INIT INFO
+# Provides: globus-gridftp
+# Required-Start: $local_fs
+# Required-Stop: $local_fs
+# Should-Start:
+# Should-Stop:
+# Default-Start: 3 4 5
+# Default-Stop: 0 1 2 6
+# Short-Description: Globus GridFTP Server
+# Description:
+### END INIT INFO
+
+# Source function library.
 . /etc/rc.d/init.d/functions
 ###############  Standard Globus configuration  ######################
 
@@ -86,5 +98,4 @@ case $1 in
       echo "Usage: $0 {start|stop|restart|status}"
     ;;
 esac
-
-exit
+exit $?
