@@ -2,7 +2,7 @@
 %define _topdir %{topdir} 
 
 Name:      glite-initscript-globus-gridftp
-Version:   1.0.3
+Version:   1.0.4
 Release:   1%{?dist}
 Summary:   glite-initscript-globus-gridftp
 
@@ -41,6 +41,9 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Wed Feb 23 2011 Andrew Elwell <Andrew.Elwell@gmail.com> 1.0.4-1
+- Testing tito for package building
+
 * Wed Feb 23 2011 Andrew Elwell <Andrew.Elwell@cern.ch> 1.0.3-1
 - Initial import to GIT
 - Updated LICENCE to later EGEE/ASL 2.0 one
