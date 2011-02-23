@@ -9,8 +9,8 @@ Summary:   glite-initscript-globus-gridftp
 Group:     EGEE
 License:   ASL 2.0
 # upstream on github but they don't provide clean tar.gz downloads
-Source0:   http://githubredir.debian.net/github/elwell/%{name}/0~master.tar.gz
-#Source0:   %{name}.src.tgz
+#Source0:   http://githubredir.debian.net/github/elwell/%{name}/0~master.tar.gz
+Source0:   %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 
 BuildArch: noarch
