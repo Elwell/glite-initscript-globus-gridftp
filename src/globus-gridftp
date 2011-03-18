@@ -2,8 +2,9 @@
 #
 # globus-gridftp Init file for the Globus Gridftp server
 # Original Author: Shu-Ting Liao
+# This version based on Fedora by Andrew Elwell <andrew.elwell@cern.ch>
 
-# chkconfig: 345 90 10
+# chkconfig: - 90 10
 # description: This shell script takes care of starting and stopping
 
 ### BEGIN INIT INFO
@@ -12,14 +13,16 @@
 # Required-Stop: $local_fs
 # Should-Start:
 # Should-Stop:
-# Default-Start: 3 4 5
-# Default-Stop: 0 1 2 6
+# Default-Start: 
+# Default-Stop: 
 # Short-Description: Globus GridFTP Server
 # Description:
 ### END INIT INFO
 
 # Source function library.
 . /etc/rc.d/init.d/functions
+
+
 ###############  Standard Globus configuration  ######################
 
 GLOBUS_SYSCONFIG=${GLOBUS_SYSCONFIG:-/etc/sysconfig/globus}
@@ -32,13 +35,6 @@ if [ -f "$GRIDFTP_SYSCONFIG" ]; then
     . "$GRIDFTP_SYSCONFIG"
 fi
 
-GLOBUS_LOCATION=${GLOBUS_LOCATION:-/opt/globus}
-if [ ! -d "$GLOBUS_LOCATION" ]; then
-  echo "GLOBUS_LOCATION not found"
-  exit 1
-fi
-export GLOBUS_LOCATION
-
 if [ -n "$GLOBUS_TCP_PORT_RANGE" ]; then
   export GLOBUS_TCP_PORT_RANGE
 fi
@@ -47,55 +43,104 @@ if [ -n "$GLOBUS_UDP_PORT_RANGE" ]; then
   export GLOBUS_UDP_PORT_RANGE
 fi
 
-
-
 ###############
+
+
 
 umask=${umask:-022}
 
 RETVAL=0
+exec="/usr/sbin/globus-gridftp-server"
 prog="globus-gridftp-server"
+config="/etc/grid-security/gridftp.conf"
+
+lockfile="/var/lock/subsys/$prog"
 
 GLITE_ENVSCRIPT=${GLITE_ENVSCRIPT:-/etc/profile.d/grid-env.sh}
 if [ -f "$GLITE_ENVSCRIPT" ]; then
     . "$GLITE_ENVSCRIPT"
 fi
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GLOBUS_LOCATION/lib
-
 # check if executable exists
-[ -x $GLOBUS_LOCATION/sbin/$prog ] || exit 0
+#[ -x $GLOBUS_LOCATION/sbin/$prog ] || exit 0
 
-case $1 in
- start)
-      echo -n "Starting $prog"   
-      daemon sh -c "'umask $umask; \
-        exec $GLOBUS_LOCATION/sbin/$prog -p 2811 -S \
+
+
+start() {
+    [ -x $exec ] || exit 5
+    [ -f $config ] || exit 6
+    echo -n $"Starting $prog: "
+    daemon sh -c "'umask $umask; $exec -p 2811 -S \
         -d ${GRIDFTP_LOG_LEVELS:-error,warn,info} \
         -l ${GRIDFTP_SESSION_LOG:-/var/log/gridftp-session.log} \
         -Z ${GRIDFTP_TRANSFER_LOG:-/var/log/globus-gridftp.log}'"
       RETVAL=$?
-      echo
-      exit $RETVAL
- ;;
- stop)
-      echo -n $"Shutting down $prog: "
-      killproc ${prog}
-      RETVAL=$?
-      echo
-      exit $RETVAL
- ;;
- restart)
-      $0 stop
-      $0 start
- ;;
- status)
-      status ${prog}
-      RETVAL=$?
-      exit $RETVAL
- ;;
- * )
-      echo "Usage: $0 {start|stop|restart|status}"
-    ;;
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+rh_status() {
+    # run checks to determine if the service is running or use generic status
+    status $prog
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
 esac
 exit $?

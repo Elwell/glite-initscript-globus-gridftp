@@ -1,19 +1,31 @@
-prefix=/
 package=glite-initscript-globus-gridftp
 
-.PHONY: configure install clean rpm
+.PHONY: configure install clean rpm dist
 
 all: configure
 
 install: 
 	@echo installing ...
-	@mkdir -p $(prefix)/etc/init.d/ $(prefix)/etc/logrotate.d/
-	@install -m 0755 src/globus-gridftp $(prefix)/etc/init.d/
-	@install -m 0644 src/logrotate/globus-gridftp $(prefix)/etc/logrotate.d/
+	@mkdir -p $(DESTDIR)/etc/init.d/ $(DESTDIR)/etc/logrotate.d/
+	@install -m 0755 src/globus-gridftp $(DESTDIR)/etc/init.d/
+	@install -m 0644 src/logrotate/globus-gridftp $(DESTDIR)/etc/logrotate.d/
 
 clean::
 	rm -f *~ test/*~ etc/*~ doc/*~ src/*~  
 	rm -rf rpmbuild 
+
+
+dist:
+	echo ${package}-`sed \
+		-e '/^Version:/!d' \
+		-e 's/[^0-9.]*\([0-9.]*\).*/\1/' \
+		-e q \
+		${package}.spec` > .fname
+	-rm -rf `cat .fname`
+	mkdir `cat .fname`
+	cp -lvr src/ Makefile LICENSE `cat .fname`
+	tar chzf `cat .fname`.tar.gz `cat .fname`
+	-rm -rf `cat .fname` .fname
 
 rpm:
 	@mkdir -p  RPMS
